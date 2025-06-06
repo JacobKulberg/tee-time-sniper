@@ -1,0 +1,33 @@
+body {
+	font-family: sans-serif;
+	margin: 20px;
+}
+
+#env {
+	margin-top: 10px;
+	color: #333;
+}
+
+button {
+	padding: 8px 12px;
+	font-size: 14px;
+}
+
+table {
+	border-collapse: collapse;
+	width: 100%;
+	margin-top: 1rem;
+	font-family: sans-serif;
+}
+
+th {
+	border: 1px solid #ccc;
+	padding: 4px 8px;
+	background-color: #f2f2f2;
+	text-align: left;
+}
+
+td {
+	border: 1px solid #ddd;
+	padding: 4px 8px;
+}

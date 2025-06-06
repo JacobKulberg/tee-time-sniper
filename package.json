@@ -1,0 +1,20 @@
+{
+	"name": "tee-time-sniper",
+	"version": "1.0.0",
+	"main": "src/js/main.js",
+	"scripts": {
+		"start": "electron src/js/main.js",
+		"build": "electron-packager . tee-time-sniper --out=build --overwrite --platform=win32 --arch=x64 --executableName=\"Tee Time Sniper\" --icon=assets/icon.ico"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"private": true,
+	"devDependencies": {
+		"dotenv": "^16.5.0",
+		"electron": "^36.4.0",
+		"electron-packager": "^17.1.2",
+		"node-fetch": "^2.7.0"
+	}
+}
