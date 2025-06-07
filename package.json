@@ -4,7 +4,7 @@
 	"main": "src/js/main.js",
 	"scripts": {
 		"start": "electron src/js/main.js",
-		"build": "electron-packager . tee-time-sniper --out=build --overwrite --platform=win32 --arch=x64 --executableName=\"Tee Time Sniper\" --icon=assets/icon.ico"
+		"build": "electron-packager . tee-time-sniper --out=build --overwrite --platform=win32 --arch=x64 --executableName=\"Tee Time Sniper\" --icon=assets/icon.ico --ignore=\".vscode|.gitignore\""
 	},
 	"keywords": [],
 	"author": "",
@@ -12,9 +12,12 @@
 	"description": "",
 	"private": true,
 	"devDependencies": {
-		"dotenv": "^16.5.0",
 		"electron": "^36.4.0",
-		"electron-packager": "^17.1.2",
+		"electron-packager": "^17.1.2"
+	},
+	"dependencies": {
+		"dotenv": "^16.5.0",
+		"moment": "^2.30.1",
 		"node-fetch": "^2.7.0"
 	}
 }
