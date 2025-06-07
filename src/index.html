@@ -6,8 +6,23 @@
 		<link rel="stylesheet" href="css/styles.css" />
 	</head>
 	<body>
-		<button id="fetch-tee-times">List All Tee Times</button>
-		<div id="tee-times"></div>
+		<h1>Tee Time Sniper</h1>
+
+		<h3>Target Tee Time:</h3>
+		<input type="datetime-local" id="target-time" />
+
+		<br /><br />
+
+		<h3>Golf Course:</h3>
+		<select id="golf-course">
+			<option value="7480">Okeeheelee</option>
+			<option value="7481">Osprey Point</option>
+			<option value="7483">Park Ridge</option>
+		</select>
+
+		<br /><br />
+
+		<button id="get-closest-tee-time">Get Closest Tee Time</button>
 
 		<script src="js/renderer.js"></script>
 	</body>

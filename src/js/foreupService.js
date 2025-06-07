@@ -42,30 +42,21 @@ async function logIn(sessionId) {
 	return bearerToken;
 }
 
-async function fetchTeeTimes(sessionId, bearerToken) {
-	let twoWeeksFromNow = moment().add(2, 'weeks').format('MM-DD-YYYY');
-	let url1 = `https://foreupsoftware.com/index.php/api/booking/times?time=all&date=${twoWeeksFromNow}&holes=18&players=0&booking_class=87&schedule_id=7480&schedule_ids[]=7480&schedule_ids[]=7481&schedule_ids[]=7483&schedule_ids[]=7476&specials_only=0&api_key=no_limits&is_aggregate=true`;
-	let url2 = `https://foreupsoftware.com/index.php/api/booking/times?time=all&date=${twoWeeksFromNow}&holes=18&players=0&booking_class=87&schedule_id=7481&schedule_ids[]=7480&schedule_ids[]=7481&schedule_ids[]=7483&schedule_ids[]=7476&specials_only=0&api_key=no_limits&is_aggregate=true`;
-	let url3 = `https://foreupsoftware.com/index.php/api/booking/times?time=all&date=${twoWeeksFromNow}&holes=18&players=0&booking_class=87&schedule_id=7483&schedule_ids[]=7480&schedule_ids[]=7481&schedule_ids[]=7483&schedule_ids[]=7476&specials_only=0&api_key=no_limits&is_aggregate=true`;
+async function fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId = 7480) {
+	date = moment(date, 'YYYY/MM/DD').format('MM-DD-YYYY');
 
-	const urls = [url1, url2, url3];
-	const responses = await Promise.all(
-		urls.map((url) =>
-			fetch(url, {
-				method: 'GET',
-				headers: {
-					Accept: 'application/json',
-					Cookie: sessionId,
-					Authorization: `Bearer ${bearerToken}`,
-				},
-			}).then((response) => {
-				if (!response.ok) throw new Error(`Fetch failed for ${url}: ${response.statusText}`);
-				return response.json();
-			})
-		)
-	);
+	let url = `https://foreupsoftware.com/index.php/api/booking/times?time=all&date=${date}&holes=18&players=0&booking_class=87&schedule_id=${courseScheduleId}&specials_only=0&api_key=no_limits&is_aggregate=true`;
 
-	return responses;
+	let response = await fetch(url, {
+		method: 'GET',
+		headers: {
+			Accept: 'application/json',
+			Cookie: sessionId,
+			Authorization: `Bearer ${bearerToken}`,
+		},
+	});
+
+	return await response.json();
 }
 
 module.exports = { fetchSessionId, logIn, fetchTeeTimes };

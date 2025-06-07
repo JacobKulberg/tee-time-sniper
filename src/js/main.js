@@ -32,8 +32,8 @@ app.whenReady().then(() => {
 		return bearerToken;
 	});
 
-	ipcMain.handle('fetch-tee-times', async (event, sessionId, bearerToken) => {
-		const teeTimes = await fetchTeeTimes(sessionId, bearerToken);
+	ipcMain.handle('fetch-tee-times', async (event, sessionId, bearerToken, date, courseScheduleId) => {
+		const teeTimes = await fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId);
 		return teeTimes;
 	});
 });
