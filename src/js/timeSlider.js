@@ -10,7 +10,7 @@ const DISPLAY_VALUES = {
 	max: document.getElementById('target-time-max'),
 };
 const START_HOUR = 7;
-const END_HOUR = 10.5;
+const END_HOUR = 12;
 const TOTAL_MIN = (END_HOUR - START_HOUR) * 60;
 const STEP_MIN = 5;
 const STEP_PCT = (STEP_MIN / TOTAL_MIN) * 100;

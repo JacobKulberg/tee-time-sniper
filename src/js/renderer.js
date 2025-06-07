@@ -8,7 +8,9 @@ window.addEventListener('DOMContentLoaded', () => {
 	targetDateEl.value = twoWeeksFromNow.toISOString().split('T')[0];
 
 	getClosestTeeTimeButtonEl.addEventListener('click', async () => {
-		let courseScheduleIds = Array.from(coursePriorityEl.querySelectorAll('li')).map((li) => li.getAttribute('value'));
+		let courseScheduleIds = Array.from(coursePriorityEl.querySelectorAll('li'))
+			.filter((li) => !li.classList.contains('disabled'))
+			.map((li) => li.getAttribute('value'));
 
 		let targetDate = targetDateEl.value;
 		if (!targetDate) {

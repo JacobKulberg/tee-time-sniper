@@ -29,9 +29,9 @@ button {
 	width: 220px;
 }
 
-body {
-	font-family: sans-serif;
-	padding: 2rem;
+.disabled {
+	opacity: 0.4;
+	-webkit-user-drag: none;
 }
 
 #target-time-slider {
@@ -39,7 +39,7 @@ body {
 	width: 80%;
 	max-width: 500px;
 	height: 8px;
-	margin: 2rem auto;
+	margin: 1rem auto;
 }
 
 #target-time-slider-track {
@@ -48,7 +48,7 @@ body {
 	left: 0;
 	right: 0;
 	height: 4px;
-	background: #ddd;
+	background: #ccc;
 	transform: translateY(-50%);
 	border-radius: 2px;
 }
@@ -80,12 +80,11 @@ body {
 #target-time-slider-range {
 	position: absolute;
 	top: 50%;
-	height: 4px; /* same as .target-time-slider-track */
-	background: #000; /* black fill */
+	height: 4px;
+	background: #000;
 	transform: translateY(-50%);
 	border-radius: 2px;
-	/* left & width will be set dynamically */
-	pointer-events: none; /* so it doesn’t block handle drags */
+	pointer-events: none;
 }
 
 #course-priority-list-container {
@@ -98,30 +97,57 @@ body {
 	list-style: none;
 	padding: 0;
 	width: 300px;
-	counter-reset: priority-item-counter; /* Initialize a counter */
+	counter-reset: priority-item-counter;
 }
+
 #course-priority-list li {
-	position: relative; /* Added for positioning context */
-	padding: 12px 16px 12px 35px; /* Adjusted padding: top, right, bottom, left */
+	position: relative;
+	padding: 12px 40px 12px 35px;
 	margin: 8px 0;
-	background: #fff;
+	background: whitesmoke;
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	cursor: grab;
 	user-select: none;
-	text-align: center; /* Changed to center the text content */
+	text-align: left;
 }
+
+#course-priority-list li:hover {
+	border-color: black;
+}
+
 #course-priority-list li.dragging {
 	opacity: 0.5;
 	cursor: grabbing;
 }
+
+#course-priority-list li .drag-handle {
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 10px;
+	display: flex;
+	justify-content: space-between;
+	pointer-events: none;
+}
+
+#course-priority-list li .drag-handle::before,
+#course-priority-list li .drag-handle::after {
+	content: '•\A•\A•';
+	white-space: pre;
+	display: block;
+	font-size: 8px;
+	line-height: 0.9;
+	color: #666;
+}
+
 #course-priority-list li::before {
-	content: counter(priority-item-counter) '. '; /* Display the counter value followed by a period and space */
-	counter-increment: priority-item-counter; /* Increment the counter for each list item */
-	font-weight: bold; /* Optional: makes the number bold */
-	position: absolute; /* Added for specific positioning */
-	left: 12px; /* Position from the left edge of li */
-	top: 50%; /* Vertically center */
-	transform: translateY(-50%); /* Fine-tune vertical centering */
-	/* margin-right: 8px; Removed as it's no longer needed for spacing */
+	content: counter(priority-item-counter) '. ';
+	counter-increment: priority-item-counter;
+	font-weight: bold;
+	position: absolute;
+	left: 12px;
+	top: 50%;
+	transform: translateY(-50%);
 }
