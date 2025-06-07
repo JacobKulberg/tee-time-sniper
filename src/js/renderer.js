@@ -2,6 +2,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	let getClosestTeeTimeButtonEl = document.getElementById('get-closest-tee-time');
 	let targetDateEl = document.getElementById('target-date');
 	let coursePriorityEl = document.getElementById('course-priority-list');
+	let numberOfPlayersEl = document.getElementById('num-players');
 
 	let twoWeeksFromNow = new Date();
 	twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 15);
@@ -31,11 +32,13 @@ window.addEventListener('DOMContentLoaded', () => {
 			let minTime = document.getElementById('target-time-min').textContent;
 			let maxTime = document.getElementById('target-time-max').textContent;
 
+			let numPlayers = numberOfPlayersEl.value;
+
 			let i = 0;
 			let teeTimes = [];
 			while (teeTimes.length === 0 && i < courseScheduleIds.length) {
 				let courseScheduleId = courseScheduleIds[i++];
-				teeTimes = await window.api.fetchTeeTimes(sessionId, bearerToken, targetDate, courseScheduleId, minTime, maxTime);
+				teeTimes = await window.api.fetchTeeTimes(sessionId, bearerToken, targetDate, courseScheduleId, minTime, maxTime, numPlayers);
 			}
 			if (teeTimes.length === 0) {
 				window.api.showAlert('No tee times available.');

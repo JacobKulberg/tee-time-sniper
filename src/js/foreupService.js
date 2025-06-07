@@ -42,10 +42,10 @@ async function logIn(sessionId) {
 	return bearerToken;
 }
 
-async function fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId = 7480, minTime = '07:00', maxTime = '10:30') {
+async function fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId = 7480, minTime = '07:00', maxTime = '10:30', numPlayers = 0) {
 	date = moment(date, 'YYYY/MM/DD').format('MM-DD-YYYY');
 
-	let url = `https://foreupsoftware.com/index.php/api/booking/times?time=all&date=${date}&holes=18&players=0&booking_class=87&schedule_id=${courseScheduleId}&specials_only=0&api_key=no_limits&is_aggregate=true`;
+	let url = `https://foreupsoftware.com/index.php/api/booking/times?time=all&date=${date}&holes=18&players=${numPlayers}&booking_class=87&schedule_id=${courseScheduleId}&specials_only=0&api_key=no_limits&is_aggregate=true`;
 
 	let response = await fetch(url, {
 		method: 'GET',
