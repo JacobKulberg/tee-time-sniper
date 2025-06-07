@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { fetchSessionId, logIn, fetchTeeTimes } = require('./foreupService');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
@@ -34,5 +34,14 @@ app.whenReady().then(() => {
 	ipcMain.handle('fetch-tee-times', async (event, sessionId, bearerToken, date, courseScheduleId, minTime, maxTime) => {
 		const teeTimes = await fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId, minTime, maxTime);
 		return teeTimes;
+	});
+
+	ipcMain.handle('show-alert', (event, message, type) => {
+		return dialog.showMessageBox({
+			type,
+			title: 'Tee Time Sniper',
+			message,
+			buttons: ['OK'],
+		});
 	});
 });

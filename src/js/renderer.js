@@ -12,13 +12,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
 		let targetDate = targetDateEl.value;
 		if (!targetDate) {
-			alert('Please select a target date.');
+			window.api.showAlert('Please select a target date.', 'error');
 			return;
 		}
 
 		let targetTime = document.getElementById('target-time-value').textContent;
 		if (!targetTime) {
-			alert('Please select a target tee time.');
+			window.api.showAlert('Please select a target tee time.', 'error');
 			return;
 		}
 
@@ -36,7 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
 				teeTimes = await window.api.fetchTeeTimes(sessionId, bearerToken, targetDate, courseScheduleId, minTime, maxTime);
 			}
 			if (teeTimes.length === 0) {
-				alert('No tee times available.');
+				window.api.showAlert('No tee times available.');
 				return;
 			}
 
@@ -72,10 +72,10 @@ window.addEventListener('DOMContentLoaded', () => {
 			let ampm = hours >= 12 ? 'PM' : 'AM';
 			closestTeeTime.time = `${hours % 12 || 12}:${minutes} ${ampm}`;
 
-			alert(`Closest tee time is at ${closestTeeTime.time} at ${closestTeeTime.course_name}.`);
+			window.api.showAlert(`Closest tee time is at ${closestTeeTime.time} at ${closestTeeTime.course_name}.`);
 		} catch (error) {
 			console.error('Error fetching tee times:', error);
-			alert('Failed to fetch tee times.');
+			window.api.showAlert('Failed to fetch tee times.', 'error');
 		}
 	});
 });
