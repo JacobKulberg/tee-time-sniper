@@ -1,17 +1,22 @@
 window.addEventListener('DOMContentLoaded', () => {
-	let getClosestTeeTimeButton = document.getElementById('get-closest-tee-time');
-	let targetTimeInput = document.getElementById('target-time');
-	let course = document.getElementById('golf-course');
+	let getClosestTeeTimeButtonEl = document.getElementById('get-closest-tee-time');
+	let targetDateEl = document.getElementById('target-date');
+	let coursePriorityEl = document.getElementById('course-priority-list');
 
 	let twoWeeksFromNow = new Date();
-	twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 14);
-	twoWeeksFromNow.setHours(4, 30, 0, 0);
-	targetTimeInput.value = twoWeeksFromNow.toISOString().slice(0, 16);
+	twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 15);
+	targetDateEl.value = twoWeeksFromNow.toISOString().split('T')[0];
 
-	getClosestTeeTimeButton.addEventListener('click', async () => {
-		let courseScheduleId = course.value;
+	getClosestTeeTimeButtonEl.addEventListener('click', async () => {
+		let courseScheduleIds = Array.from(coursePriorityEl.querySelectorAll('li')).map((li) => li.getAttribute('value'));
 
-		let targetTime = targetTimeInput.value;
+		let targetDate = targetDateEl.value;
+		if (!targetDate) {
+			alert('Please select a target date.');
+			return;
+		}
+
+		let targetTime = document.getElementById('target-time-value').textContent;
 		if (!targetTime) {
 			alert('Please select a target tee time.');
 			return;
@@ -21,24 +26,35 @@ window.addEventListener('DOMContentLoaded', () => {
 			let sessionId = await window.api.fetchSessionId();
 			let bearerToken = await window.api.logIn(sessionId);
 
-			let date = targetTime.split('T')[0];
-			let teeTimes = await window.api.fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId);
+			let minTime = document.getElementById('target-time-min').textContent;
+			let maxTime = document.getElementById('target-time-max').textContent;
 
+			let i = 0;
+			let teeTimes = [];
+			while (teeTimes.length === 0 && i < courseScheduleIds.length) {
+				let courseScheduleId = courseScheduleIds[i++];
+				teeTimes = await window.api.fetchTeeTimes(sessionId, bearerToken, targetDate, courseScheduleId, minTime, maxTime);
+			}
 			if (teeTimes.length === 0) {
 				alert('No tee times available.');
 				return;
 			}
 
-			targetTime = targetTime.split('T')[1];
 			let closestTeeTime = teeTimes.reduce((prev, curr) => {
+				if (!prev || !curr || !prev.time || !curr.time) {
+					return prev || curr;
+				}
+
 				if (prev.time.includes(' ')) {
 					prev.time = prev.time.split(' ')[1];
 				}
-				curr.time = curr.time.split(' ')[1];
+				if (curr.time.includes(' ')) {
+					curr.time = curr.time.split(' ')[1];
+				}
 
 				let prevTimeParts = prev.time.split(':');
 				let currTimeParts = curr.time.split(':');
-				let targetTimeParts = targetTime.split(':');
+				let targetTimeParts = targetTime.split(' ')[0].split(':');
 
 				let prevDate = new Date(1970, 0, 1, prevTimeParts[0], prevTimeParts[1], prevTimeParts[2] || 0);
 				let currDate = new Date(1970, 0, 1, currTimeParts[0], currTimeParts[1], currTimeParts[2] || 0);
@@ -56,10 +72,10 @@ window.addEventListener('DOMContentLoaded', () => {
 			let ampm = hours >= 12 ? 'PM' : 'AM';
 			closestTeeTime.time = `${hours % 12 || 12}:${minutes} ${ampm}`;
 
-			alert(`Closest tee time is at ${closestTeeTime.time}`);
+			alert(`Closest tee time is at ${closestTeeTime.time} at ${closestTeeTime.course_name}.`);
 		} catch (error) {
 			console.error('Error fetching tee times:', error);
-			alert('Failed to fetch tee times. Please try again later.');
+			alert('Failed to fetch tee times.');
 		}
 	});
 });

@@ -8,22 +8,44 @@
 	<body>
 		<h1>Tee Time Sniper</h1>
 
-		<h3>Target Tee Time:</h3>
-		<input type="datetime-local" id="target-time" />
+		<h3>Target Date:</h3>
+		<input type="date" id="target-date" />
 
 		<br /><br />
 
-		<h3>Golf Course:</h3>
-		<select id="golf-course">
-			<option value="7480">Okeeheelee</option>
-			<option value="7481">Osprey Point</option>
-			<option value="7483">Park Ridge</option>
-		</select>
+		<h3>Target Time:</h3>
+		<div id="target-time-slider">
+			<div id="target-time-slider-track"></div>
+			<div id="target-time-slider-range"></div>
+			<!-- new -->
+			<div class="target-time-slider-handle" id="target-time-handle-value" data-type="value"></div>
+			<div class="target-time-slider-handle" id="target-time-handle-min" data-type="min"></div>
+			<div class="target-time-slider-handle" id="target-time-handle-max" data-type="max"></div>
+		</div>
+
+		<div id="target-time-values">
+			<div>Min: <span id="target-time-min"></span></div>
+			<div>Target Time: <span id="target-time-value"></span></div>
+			<div>Max: <span id="target-time-max"></span></div>
+		</div>
+
+		<br />
+
+		<h3>Golf Course Priority:</h3>
+		<div id="course-priority-list-container">
+			<ul id="course-priority-list">
+				<li draggable="true" value="7481">Osprey Point</li>
+				<li draggable="true" value="7483">Park Ridge</li>
+				<li draggable="true" value="7480">Okeeheelee</li>
+			</ul>
+		</div>
 
 		<br /><br />
 
 		<button id="get-closest-tee-time">Get Closest Tee Time</button>
 
 		<script src="js/renderer.js"></script>
+		<script src="js/timeSlider.js"></script>
+		<script src="js/coursePriority.js"></script>
 	</body>
 </html>

@@ -28,3 +28,100 @@ button {
 button {
 	width: 220px;
 }
+
+body {
+	font-family: sans-serif;
+	padding: 2rem;
+}
+
+#target-time-slider {
+	position: relative;
+	width: 80%;
+	max-width: 500px;
+	height: 8px;
+	margin: 2rem auto;
+}
+
+#target-time-slider-track {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: #ddd;
+	transform: translateY(-50%);
+	border-radius: 2px;
+}
+
+.target-time-slider-handle {
+	position: absolute;
+	top: 50%;
+	width: 16px;
+	height: 16px;
+	background: #6db4ff;
+	border-radius: 50%;
+	transform: translate(-50%, -50%);
+	cursor: pointer;
+	user-select: none;
+}
+
+#target-time-handle-value {
+	background: #36aa00;
+}
+
+#target-time-values {
+	width: 80%;
+	max-width: 500px;
+	margin: 1rem auto;
+	display: flex;
+	justify-content: space-between;
+}
+
+#target-time-slider-range {
+	position: absolute;
+	top: 50%;
+	height: 4px; /* same as .target-time-slider-track */
+	background: #000; /* black fill */
+	transform: translateY(-50%);
+	border-radius: 2px;
+	/* left & width will be set dynamically */
+	pointer-events: none; /* so it doesn’t block handle drags */
+}
+
+#course-priority-list-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#course-priority-list {
+	list-style: none;
+	padding: 0;
+	width: 300px;
+	counter-reset: priority-item-counter; /* Initialize a counter */
+}
+#course-priority-list li {
+	position: relative; /* Added for positioning context */
+	padding: 12px 16px 12px 35px; /* Adjusted padding: top, right, bottom, left */
+	margin: 8px 0;
+	background: #fff;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	cursor: grab;
+	user-select: none;
+	text-align: center; /* Changed to center the text content */
+}
+#course-priority-list li.dragging {
+	opacity: 0.5;
+	cursor: grabbing;
+}
+#course-priority-list li::before {
+	content: counter(priority-item-counter) '. '; /* Display the counter value followed by a period and space */
+	counter-increment: priority-item-counter; /* Increment the counter for each list item */
+	font-weight: bold; /* Optional: makes the number bold */
+	position: absolute; /* Added for specific positioning */
+	left: 12px; /* Position from the left edge of li */
+	top: 50%; /* Vertically center */
+	transform: translateY(-50%); /* Fine-tune vertical centering */
+	/* margin-right: 8px; Removed as it's no longer needed for spacing */
+}

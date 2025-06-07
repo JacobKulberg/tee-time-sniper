@@ -42,7 +42,7 @@ async function logIn(sessionId) {
 	return bearerToken;
 }
 
-async function fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId = 7480) {
+async function fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId = 7480, minTime = '07:00', maxTime = '10:30') {
 	date = moment(date, 'YYYY/MM/DD').format('MM-DD-YYYY');
 
 	let url = `https://foreupsoftware.com/index.php/api/booking/times?time=all&date=${date}&holes=18&players=0&booking_class=87&schedule_id=${courseScheduleId}&specials_only=0&api_key=no_limits&is_aggregate=true`;
@@ -56,7 +56,13 @@ async function fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId = 74
 		},
 	});
 
-	return await response.json();
+	let times = await response.json();
+	times = times.filter((time) => {
+		time.time = time.time.split(' ')[1];
+		return moment(time.time, 'HH:mm').isBetween(moment(minTime, 'HH:mm'), moment(maxTime, 'HH:mm'), null, '[]');
+	});
+
+	return times;
 }
 
 module.exports = { fetchSessionId, logIn, fetchTeeTimes };

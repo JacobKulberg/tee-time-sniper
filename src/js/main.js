@@ -16,7 +16,6 @@ function createWindow() {
 	});
 
 	win.loadFile(path.join(__dirname, '../index.html'));
-	if (process.env.ENVIRONMENT === 'DEV') win.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -32,8 +31,8 @@ app.whenReady().then(() => {
 		return bearerToken;
 	});
 
-	ipcMain.handle('fetch-tee-times', async (event, sessionId, bearerToken, date, courseScheduleId) => {
-		const teeTimes = await fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId);
+	ipcMain.handle('fetch-tee-times', async (event, sessionId, bearerToken, date, courseScheduleId, minTime, maxTime) => {
+		const teeTimes = await fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId, minTime, maxTime);
 		return teeTimes;
 	});
 });
