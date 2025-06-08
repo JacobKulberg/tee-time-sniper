@@ -4,6 +4,7 @@
 	padding: 0;
 	font-family: Verdana, sans-serif;
 	text-align: center;
+	user-select: none;
 }
 
 h1 {
@@ -19,7 +20,7 @@ input,
 select,
 button {
 	margin: 10px;
-	width: 260px;
+	width: 218px;
 	height: 40px;
 	font-size: 16px;
 	font-weight: bold;
@@ -31,7 +32,12 @@ button {
 
 .disabled {
 	opacity: 0.4;
+	cursor: not-allowed !important;
 	-webkit-user-drag: none;
+}
+
+.disabled * {
+	pointer-events: none;
 }
 
 #target-time-slider {
@@ -148,6 +154,26 @@ button {
 	font-weight: bold;
 	position: absolute;
 	left: 12px;
-	top: 50%;
-	transform: translateY(-50%);
+}
+
+#num-players {
+	width: 60px;
+}
+
+#num-players::-webkit-inner-spin-button,
+#num-players::-webkit-outer-spin-button {
+	opacity: 1;
+}
+
+#snipe {
+	background: #36aa00;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+#snipe.sniping {
+	width: 150px;
+	background: #ff4719;
 }

@@ -1,86 +1,58 @@
 window.addEventListener('DOMContentLoaded', () => {
-	let getClosestTeeTimeButtonEl = document.getElementById('get-closest-tee-time');
+	let snipeButtonEl = document.getElementById('snipe');
 	let targetDateEl = document.getElementById('target-date');
 	let coursePriorityEl = document.getElementById('course-priority-list');
 	let numberOfPlayersEl = document.getElementById('num-players');
+	let optionsEl = document.getElementById('tee-time-options');
+
+	function updateSnipeUI(isSniping) {
+		if (isSniping) {
+			optionsEl.classList.add('disabled');
+			snipeButtonEl.textContent = 'Stop Sniping';
+			snipeButtonEl.classList.add('sniping');
+		} else {
+			optionsEl.classList.remove('disabled');
+			snipeButtonEl.textContent = 'Snipe at 6:00 AM';
+			snipeButtonEl.classList.remove('sniping');
+		}
+	}
 
 	let twoWeeksFromNow = new Date();
 	twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 15);
-	targetDateEl.value = twoWeeksFromNow.toISOString().split('T')[0];
+	let easternDate = new Date(twoWeeksFromNow.toLocaleString('en-US', { timeZone: 'America/New_York' }));
 
-	getClosestTeeTimeButtonEl.addEventListener('click', async () => {
-		let courseScheduleIds = Array.from(coursePriorityEl.querySelectorAll('li'))
-			.filter((li) => !li.classList.contains('disabled'))
-			.map((li) => li.getAttribute('value'));
+	let year = easternDate.getFullYear();
+	let month = String(easternDate.getMonth() + 1).padStart(2, '0');
+	let day = String(easternDate.getDate()).padStart(2, '0');
+	targetDateEl.value = `${year}-${month}-${day}`;
 
-		let targetDate = targetDateEl.value;
-		if (!targetDate) {
-			window.api.showAlert('Please select a target date.', 'error');
-			return;
-		}
+	snipeButtonEl.addEventListener('click', async () => {
+		let teeTimeOptions = {
+			targetDate: targetDateEl.value,
+			minTime: document.getElementById('target-time-min').textContent,
+			targetTime: document.getElementById('target-time-value').textContent,
+			maxTime: document.getElementById('target-time-max').textContent,
+			courseScheduleIds: Array.from(coursePriorityEl.querySelectorAll('li'))
+				.filter((li) => !li.classList.contains('disabled'))
+				.map((li) => li.getAttribute('value')),
+			numPlayers: parseInt(numberOfPlayersEl.value),
+		};
+		await window.api.setTeeTimeOptions(teeTimeOptions);
 
-		let targetTime = document.getElementById('target-time-value').textContent;
-		if (!targetTime) {
-			window.api.showAlert('Please select a target tee time.', 'error');
-			return;
-		}
+		let isSniping = await window.api.getIsSniping();
+		let newIsSnipingState = !isSniping;
+		await window.api.setIsSniping(newIsSnipingState);
 
-		try {
-			let sessionId = await window.api.fetchSessionId();
-			let bearerToken = await window.api.logIn(sessionId);
+		updateSnipeUI(newIsSnipingState);
+	});
 
-			let minTime = document.getElementById('target-time-min').textContent;
-			let maxTime = document.getElementById('target-time-max').textContent;
+	window.api.onStopSniping(async (reservation) => {
+		updateSnipeUI(false);
 
-			let numPlayers = numberOfPlayersEl.value;
-
-			let i = 0;
-			let teeTimes = [];
-			while (teeTimes.length === 0 && i < courseScheduleIds.length) {
-				let courseScheduleId = courseScheduleIds[i++];
-				teeTimes = await window.api.fetchTeeTimes(sessionId, bearerToken, targetDate, courseScheduleId, minTime, maxTime, numPlayers);
-			}
-			if (teeTimes.length === 0) {
-				window.api.showAlert('No tee times available.');
-				return;
-			}
-
-			let closestTeeTime = teeTimes.reduce((prev, curr) => {
-				if (!prev || !curr || !prev.time || !curr.time) {
-					return prev || curr;
-				}
-
-				if (prev.time.includes(' ')) {
-					prev.time = prev.time.split(' ')[1];
-				}
-				if (curr.time.includes(' ')) {
-					curr.time = curr.time.split(' ')[1];
-				}
-
-				let prevTimeParts = prev.time.split(':');
-				let currTimeParts = curr.time.split(':');
-				let targetTimeParts = targetTime.split(' ')[0].split(':');
-
-				let prevDate = new Date(1970, 0, 1, prevTimeParts[0], prevTimeParts[1], prevTimeParts[2] || 0);
-				let currDate = new Date(1970, 0, 1, currTimeParts[0], currTimeParts[1], currTimeParts[2] || 0);
-				let targetDate = new Date(1970, 0, 1, targetTimeParts[0], targetTimeParts[1], targetTimeParts[2] || 0);
-
-				let prevDiff = Math.abs(prevDate - targetDate);
-				let currDiff = Math.abs(currDate - targetDate);
-
-				return prevDiff <= currDiff ? prev : curr;
-			});
-
-			let closestTimeParts = closestTeeTime.time.split(':');
-			let hours = parseInt(closestTimeParts[0], 10);
-			let minutes = closestTimeParts[1];
-			let ampm = hours >= 12 ? 'PM' : 'AM';
-			closestTeeTime.time = `${hours % 12 || 12}:${minutes} ${ampm}`;
-
-			window.api.showAlert(`Closest tee time is at ${closestTeeTime.time} at ${closestTeeTime.course_name}.`);
-		} catch (error) {
-			console.error('Error fetching tee times:', error);
-			window.api.showAlert('Failed to fetch tee times.', 'error');
+		if (reservation) {
+			await window.api.showAlert(`Successfully reserved tee time for ${reservation.teesheet_title} at ${reservation.time}.`);
+		} else {
+			await window.api.showAlert('Failed to reserve tee time.', 'error');
 		}
 	});
 });

@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const { fetchSessionId, logIn, fetchTeeTimes } = require('./foreupService');
+const { getSessionId, logIn, fetchTeeTimes, getIsSniping, getTeeTimeOptions, setIsSniping, setTeeTimeOptions } = require('./foreupService');
+const { startWorkers } = require('./worker');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
@@ -16,13 +17,16 @@ function createWindow() {
 	});
 
 	win.loadFile(path.join(__dirname, '../index.html'));
+
+	return win;
 }
 
 app.whenReady().then(() => {
-	createWindow();
+	let win = createWindow();
+	startWorkers(win);
 
 	ipcMain.handle('get-session-id', async () => {
-		const sessionId = await fetchSessionId();
+		const sessionId = await getSessionId();
 		return sessionId;
 	});
 
@@ -43,5 +47,21 @@ app.whenReady().then(() => {
 			message,
 			buttons: ['OK'],
 		});
+	});
+
+	ipcMain.handle('get-is-reserving', () => {
+		return getIsSniping();
+	});
+
+	ipcMain.handle('get-tee-time-data', () => {
+		return getTeeTimeOptions();
+	});
+
+	ipcMain.handle('set-is-reserving', (event, value) => {
+		setIsSniping(value);
+	});
+
+	ipcMain.handle('set-tee-time-data', (event, data) => {
+		setTeeTimeOptions(data);
 	});
 });
