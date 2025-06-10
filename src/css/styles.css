@@ -165,7 +165,7 @@ button {
 	opacity: 1;
 }
 
-#snipe {
+.snipe {
 	background: #36aa00;
 	color: white;
 	border: none;
@@ -173,7 +173,7 @@ button {
 	cursor: pointer;
 }
 
-#snipe.sniping {
+.snipe.sniping {
 	width: 150px;
 	background: #ff4719;
 }

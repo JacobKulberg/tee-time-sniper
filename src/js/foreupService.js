@@ -1,19 +1,28 @@
 const moment = require('moment');
 const fetch = require('node-fetch');
 
-let isSniping = false;
+let isSniping6AM = false;
+let isSnipingWhenAvailable = false;
 let teeTimeOptions = {};
 
-async function getIsSniping() {
-	return isSniping;
+async function getIsSniping6AM() {
+	return isSniping6AM;
+}
+
+async function getIsSnipingWhenAvailable() {
+	return isSnipingWhenAvailable;
 }
 
 async function getTeeTimeOptions() {
 	return teeTimeOptions;
 }
 
-async function setIsSniping(value) {
-	isSniping = value;
+async function setIsSniping6AM(value) {
+	isSniping6AM = value;
+}
+
+async function setIsSnipingWhenAvailable(value) {
+	isSnipingWhenAvailable = value;
 }
 
 async function setTeeTimeOptions(data) {
@@ -84,9 +93,7 @@ async function fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId, min
 	return times;
 }
 
-async function reserveTeeTime(sessionId, bearerToken, teeTimeOptions) {
-	if (!isSniping) return;
-
+async function getClosestTeeTime(sessionId, bearerToken, teeTimeOptions) {
 	let i = 0;
 	let teeTimes = [];
 	while (teeTimes.length === 0 && i < teeTimeOptions.courseScheduleIds.length) {
@@ -94,8 +101,8 @@ async function reserveTeeTime(sessionId, bearerToken, teeTimeOptions) {
 		teeTimes = await fetchTeeTimes(sessionId, bearerToken, teeTimeOptions.targetDate, courseId, teeTimeOptions.minTime, teeTimeOptions.maxTime, teeTimeOptions.numPlayers);
 	}
 	if (teeTimes.length === 0) {
-		console.log('No tee times available.');
-		return;
+		// no tee times found for any course
+		return null;
 	}
 
 	let closestTeeTime = teeTimes.reduce((prev, curr) => {
@@ -110,20 +117,20 @@ async function reserveTeeTime(sessionId, bearerToken, teeTimeOptions) {
 			curr.time = curr.time.split(' ')[1];
 		}
 
-		let prevTimeParts = prev.time.split(':');
-		let currTimeParts = curr.time.split(':');
-		let targetTimeParts = teeTimeOptions.targetTime.split(' ')[0].split(':');
+		let prevDate = moment(prev.time, 'HH:mm');
+		let currDate = moment(curr.time, 'HH:mm');
+		let targetDate = moment(teeTimeOptions.targetTime.split(' ')[0], 'HH:mm');
 
-		let prevDate = new Date(1970, 0, 1, prevTimeParts[0], prevTimeParts[1], prevTimeParts[2] || 0);
-		let currDate = new Date(1970, 0, 1, currTimeParts[0], currTimeParts[1], currTimeParts[2] || 0);
-		let targetDate = new Date(1970, 0, 1, targetTimeParts[0], targetTimeParts[1], targetTimeParts[2] || 0);
-
-		let prevDiff = Math.abs(prevDate - targetDate);
-		let currDiff = Math.abs(currDate - targetDate);
+		let prevDiff = Math.abs(prevDate.diff(targetDate));
+		let currDiff = Math.abs(currDate.diff(targetDate));
 
 		return prevDiff <= currDiff ? prev : curr;
 	});
 
+	return closestTeeTime;
+}
+
+async function reserveTeeTime(sessionId, bearerToken, closestTeeTime) {
 	let pendingReservationUrl = `https://foreupsoftware.com/api_rest/courses/${closestTeeTime.course_id}/oco/bag/pending_reservation`;
 	let pendingReservationResponse = await fetch(pendingReservationUrl, {
 		method: 'POST',
@@ -269,4 +276,4 @@ async function reserveTeeTime(sessionId, bearerToken, teeTimeOptions) {
 	return reservationData;
 }
 
-module.exports = { getSessionId, logIn, fetchTeeTimes, reserveTeeTime, getIsSniping, getTeeTimeOptions, setIsSniping, setTeeTimeOptions };
+module.exports = { getSessionId, logIn, fetchTeeTimes, getClosestTeeTime, reserveTeeTime, getIsSniping6AM, getIsSnipingWhenAvailable, getTeeTimeOptions, setIsSniping6AM, setIsSnipingWhenAvailable, setTeeTimeOptions };

@@ -1,27 +1,64 @@
 const { CronJob } = require('cron');
-const { getSessionId, logIn, reserveTeeTime, getIsSniping, getTeeTimeOptions, setIsSniping } = require('./foreupService');
+const { getSessionId, logIn, getClosestTeeTime, reserveTeeTime, getIsSniping6AM, getIsSnipingWhenAvailable, getTeeTimeOptions, setIsSniping6AM, setIsSnipingWhenAvailable } = require('./foreupService');
 
-async function stopSniping(win, reservation) {
-	await setIsSniping(false);
+async function stopSniping6AM(win, reservation) {
+	await setIsSniping6AM(false);
 
-	win.webContents.send('stop-sniping', reservation);
+	win.webContents.send('stop-sniping-6am', reservation);
+}
+
+async function stopSnipingWhenReady(win, reservation) {
+	await setIsSnipingWhenAvailable(false);
+
+	win.webContents.send('stop-sniping-when-ready', reservation);
 }
 
 function startWorkers(win) {
-	//* Reserve Tee Time *//
+	//* Reserve Tee Time at 6AM*//
 	new CronJob(
 		'0 6 * * *',
 		async () => {
-			let isSniping = await getIsSniping();
-			if (!isSniping) return;
+			let isSniping6AM = await getIsSniping6AM();
+			if (!isSniping6AM) return;
 
 			let teeTimeOptions = await getTeeTimeOptions();
 
 			let sessionId = await getSessionId();
 			let bearerToken = await logIn(sessionId);
-			let reservation = await reserveTeeTime(sessionId, bearerToken, teeTimeOptions);
+			let closestTeeTime = await getClosestTeeTime(sessionId, bearerToken, teeTimeOptions);
 
-			await stopSniping(win, reservation);
+			if (!closestTeeTime) {
+				await stopSniping6AM(win, null);
+				return;
+			}
+
+			let reservation = await reserveTeeTime(sessionId, bearerToken, closestTeeTime);
+
+			await stopSniping6AM(win, reservation);
+		},
+		null,
+		true,
+		'America/New_York'
+	);
+
+	//* Reserve Tee Time When Available *//
+	new CronJob(
+		'*/20 * * * * *',
+		async () => {
+			let isSnipingWhenAvailable = await getIsSnipingWhenAvailable();
+			if (!isSnipingWhenAvailable) return;
+
+			let teeTimeOptions = await getTeeTimeOptions();
+
+			let sessionId = await getSessionId();
+			let bearerToken = await logIn(sessionId);
+			let closestTeeTime = await getClosestTeeTime(sessionId, bearerToken, teeTimeOptions);
+
+			if (!closestTeeTime) return;
+
+			let reservation = await reserveTeeTime(sessionId, bearerToken, closestTeeTime);
+
+			await stopSnipingWhenReady(win, reservation);
 		},
 		null,
 		true,

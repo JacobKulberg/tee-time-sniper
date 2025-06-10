@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const { getSessionId, logIn, fetchTeeTimes, getIsSniping, getTeeTimeOptions, setIsSniping, setTeeTimeOptions } = require('./foreupService');
+const { getSessionId, logIn, fetchTeeTimes, getIsSniping6AM, getIsSnipingWhenAvailable, getTeeTimeOptions, setIsSniping6AM, setIsSnipingWhenAvailable, setTeeTimeOptions } = require('./foreupService');
 const { startWorkers } = require('./worker');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
@@ -49,16 +49,24 @@ app.whenReady().then(() => {
 		});
 	});
 
-	ipcMain.handle('get-is-reserving', () => {
-		return getIsSniping();
+	ipcMain.handle('get-is-sniping-6am', () => {
+		return getIsSniping6AM();
+	});
+
+	ipcMain.handle('get-is-sniping-when-available', () => {
+		return getIsSnipingWhenAvailable();
 	});
 
 	ipcMain.handle('get-tee-time-data', () => {
 		return getTeeTimeOptions();
 	});
 
-	ipcMain.handle('set-is-reserving', (event, value) => {
-		setIsSniping(value);
+	ipcMain.handle('set-is-sniping-6am', (event, value) => {
+		setIsSniping6AM(value);
+	});
+
+	ipcMain.handle('set-is-sniping-when-available', (event, value) => {
+		setIsSnipingWhenAvailable(value);
 	});
 
 	ipcMain.handle('set-tee-time-data', (event, data) => {
