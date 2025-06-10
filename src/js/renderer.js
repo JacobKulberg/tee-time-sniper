@@ -12,11 +12,13 @@ window.addEventListener('DOMContentLoaded', () => {
 			snipeButton6AMEl.textContent = 'Stop Sniping';
 			snipeButton6AMEl.classList.add('sniping');
 			snipeButtonWhenAvailableEl.classList.add('disabled');
+			snipeButtonWhenAvailableEl.disabled = true;
 		} else {
 			optionsEl.classList.remove('disabled');
 			snipeButton6AMEl.textContent = 'Snipe at 6:00 AM';
 			snipeButton6AMEl.classList.remove('sniping');
 			snipeButtonWhenAvailableEl.classList.remove('disabled');
+			snipeButtonWhenAvailableEl.disabled = false;
 		}
 	}
 
@@ -26,11 +28,13 @@ window.addEventListener('DOMContentLoaded', () => {
 			snipeButtonWhenAvailableEl.textContent = 'Stop Sniping';
 			snipeButtonWhenAvailableEl.classList.add('sniping');
 			snipeButton6AMEl.classList.add('disabled');
+			snipeButton6AMEl.disabled = true;
 		} else {
 			optionsEl.classList.remove('disabled');
 			snipeButtonWhenAvailableEl.textContent = 'Snipe When Available';
 			snipeButtonWhenAvailableEl.classList.remove('sniping');
 			snipeButton6AMEl.classList.remove('disabled');
+			snipeButton6AMEl.disabled = false;
 		}
 	}
 
