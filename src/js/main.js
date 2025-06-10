@@ -1,10 +1,12 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron');
 const { getSessionId, logIn, fetchTeeTimes, getIsSniping6AM, getIsSnipingWhenAvailable, getTeeTimeOptions, setIsSniping6AM, setIsSnipingWhenAvailable, setTeeTimeOptions } = require('./foreupService');
 const { startWorkers } = require('./worker');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 function createWindow() {
+	let tray = null;
+
 	const win = new BrowserWindow({
 		width: 700,
 		height: 675,
@@ -16,7 +18,37 @@ function createWindow() {
 		},
 	});
 
+	const contextMenu = Menu.buildFromTemplate([
+		{
+			label: 'Show',
+			click: () => {
+				win.show();
+
+				tray.destroy();
+			},
+		},
+		{
+			label: 'Quit Tee Time Sniper',
+			click: () => {
+				app.isQuitting = true;
+				app.quit();
+			},
+		},
+	]);
+
 	win.loadFile(path.join(__dirname, '../index.html'));
+
+	win.on('minimize', async (e) => {
+		e.preventDefault();
+		win.hide();
+
+		let isSniping = (await getIsSniping6AM()) || (await getIsSnipingWhenAvailable());
+		let iconPath = isSniping ? '../../assets/trayRed.ico' : '../../assets/trayGreen.ico';
+
+		tray = new Tray(path.join(__dirname, iconPath));
+		tray.setToolTip('Tee Time Sniper');
+		tray.setContextMenu(contextMenu);
+	});
 
 	return win;
 }
