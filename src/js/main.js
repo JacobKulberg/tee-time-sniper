@@ -6,8 +6,8 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 function createWindow() {
 	const win = new BrowserWindow({
-		width: 1000,
-		height: 800,
+		width: 700,
+		height: 675,
 		icon: path.join(__dirname, '../../assets/icon.ico'),
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),

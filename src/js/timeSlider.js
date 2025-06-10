@@ -22,6 +22,10 @@ const HANDLE_POSITIONS = {
 
 let activeHandle = null;
 
+function getZoomFactor() {
+	return parseFloat(getComputedStyle(document.body).zoom) || 1;
+}
+
 function pctToPx(p) {
 	return (p / 100) * container.clientWidth;
 }
@@ -75,7 +79,13 @@ function onMove(e) {
 	if (!activeHandle) return;
 
 	let rect = container.getBoundingClientRect();
-	let pct = snapPct(pxToPct(e.clientX - rect.left));
+	let zoomFactor = getZoomFactor();
+
+	// adjust mouse position for zoom
+	let adjustedX = e.clientX / zoomFactor;
+	let adjustedLeft = rect.left / zoomFactor;
+
+	let pct = snapPct(pxToPct(adjustedX - adjustedLeft));
 
 	if (activeHandle === 'min') {
 		pct = Math.min(pct, HANDLE_POSITIONS.value - STEP_PCT);
@@ -97,6 +107,8 @@ function onUp() {
 	document.removeEventListener('mousemove', onMove);
 	document.removeEventListener('mouseup', onUp);
 }
+
+window.addEventListener('resize', render);
 
 Object.values(HANDLE_ELEMENTS).forEach((h) => h.addEventListener('mousedown', onDown));
 
