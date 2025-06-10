@@ -38,9 +38,13 @@ window.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	let twoWeeksFromNow = new Date();
-	twoWeeksFromNow.setDate(twoWeeksFromNow.getDate() + 15);
-	let easternDate = new Date(twoWeeksFromNow.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+	const now = new Date();
+	const easternTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+	const isBeforeSixAM = easternTime.getHours() < 6;
+	let daysToAdd = isBeforeSixAM ? 14 : 15;
+	let targetDate = new Date(now);
+	targetDate.setDate(targetDate.getDate() + daysToAdd);
+	let easternDate = new Date(targetDate.toLocaleString('en-US', { timeZone: 'America/New_York' }));
 
 	let year = easternDate.getFullYear();
 	let month = String(easternDate.getMonth() + 1).padStart(2, '0');
