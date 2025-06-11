@@ -61,8 +61,6 @@ function startWorkers(win) {
 			let closestTeeTime = await getClosestTeeTime(sessionId, bearerToken, teeTimeOptions);
 			if (!closestTeeTime) return;
 
-			sessionId = await getSessionId();
-			bearerToken = await logIn(sessionId);
 			let reservation = await reserveTeeTime(sessionId, bearerToken, closestTeeTime);
 
 			await stopSnipingWhenReady(win, reservation);
