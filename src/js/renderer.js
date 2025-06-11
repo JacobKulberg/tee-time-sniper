@@ -110,4 +110,21 @@ window.addEventListener('DOMContentLoaded', () => {
 			await window.api.showAlert('Failed to reserve tee time.', 'error');
 		}
 	});
+
+	window.api.sendReservationEmail(async (reservation) => {
+		emailjs.init(window.api.EMAILJS_USER_ID);
+
+		let reservationTime = new Date(reservation.time);
+		let formattedDate = `${reservationTime.getMonth() + 1}/${reservationTime.getDate()}/${reservationTime.getFullYear()}`;
+		let formattedTime = reservationTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+
+		let templateParams = {
+			email: window.api.EMAIL,
+			course_title: reservation.teesheet_title,
+			date: formattedDate,
+			time: formattedTime,
+		};
+
+		await emailjs.send(window.api.EMAILJS_SERVICE_ID, window.api.EMAILJS_TEMPLATE_ID, templateParams);
+	});
 });

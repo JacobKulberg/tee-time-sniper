@@ -5,12 +5,14 @@ async function stopSniping6AM(win, reservation) {
 	await setIsSniping6AM(false);
 
 	win.webContents.send('stop-sniping-6am', reservation);
+	win.webContents.send('send-reservation-email', reservation);
 }
 
 async function stopSnipingWhenReady(win, reservation) {
 	await setIsSnipingWhenAvailable(false);
 
 	win.webContents.send('stop-sniping-when-ready', reservation);
+	win.webContents.send('send-reservation-email', reservation);
 }
 
 function startWorkers(win) {

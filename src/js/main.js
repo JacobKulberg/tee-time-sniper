@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron');
+const path = require('path');
 const { getSessionId, logIn, fetchTeeTimes, getIsSniping6AM, getIsSnipingWhenAvailable, getTeeTimeOptions, setIsSniping6AM, setIsSnipingWhenAvailable, setTeeTimeOptions } = require('./foreupService');
 const { startWorkers } = require('./worker');
-const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 function createWindow() {
