@@ -1,6 +1,13 @@
 const { CronJob } = require('cron');
 const { getSessionId, logIn, getClosestTeeTime, reserveTeeTime, getIsSniping6AM, getIsSnipingWhenAvailable, getTeeTimeOptions, setIsSniping6AM, setIsSnipingWhenAvailable } = require('./foreupService');
 
+let sessionId = null;
+let bearerToken = null;
+(async () => {
+	sessionId = await getSessionId();
+	bearerToken = await logIn(sessionId);
+})();
+
 async function stopSniping6AM(win, reservation) {
 	await setIsSniping6AM(false);
 
@@ -16,7 +23,7 @@ async function stopSnipingWhenReady(win, reservation) {
 }
 
 function startWorkers(win) {
-	//* Reserve Tee Time at 6AM*//
+	//* Reserve Tee Time at 6AM *//
 	new CronJob(
 		'0 6 * * *',
 		async () => {
@@ -25,8 +32,8 @@ function startWorkers(win) {
 
 			let teeTimeOptions = await getTeeTimeOptions();
 
-			let sessionId = await getSessionId();
-			let bearerToken = await logIn(sessionId);
+			sessionId = await getSessionId();
+			bearerToken = await logIn(sessionId);
 			let closestTeeTime = await getClosestTeeTime(sessionId, bearerToken, teeTimeOptions);
 
 			if (!closestTeeTime) {
@@ -45,22 +52,32 @@ function startWorkers(win) {
 
 	//* Reserve Tee Time When Available *//
 	new CronJob(
-		'*/20 * * * * *',
+		'*/15 * * * * *',
 		async () => {
 			let isSnipingWhenAvailable = await getIsSnipingWhenAvailable();
 			if (!isSnipingWhenAvailable) return;
 
 			let teeTimeOptions = await getTeeTimeOptions();
-
-			let sessionId = await getSessionId();
-			let bearerToken = await logIn(sessionId);
 			let closestTeeTime = await getClosestTeeTime(sessionId, bearerToken, teeTimeOptions);
-
 			if (!closestTeeTime) return;
 
+			sessionId = await getSessionId();
+			bearerToken = await logIn(sessionId);
 			let reservation = await reserveTeeTime(sessionId, bearerToken, closestTeeTime);
 
 			await stopSnipingWhenReady(win, reservation);
+		},
+		null,
+		true,
+		'America/New_York'
+	);
+
+	//* Get Session ID and Bearer Token *//
+	new CronJob(
+		'0 * * * *',
+		async () => {
+			sessionId = await getSessionId();
+			bearerToken = await logIn(sessionId);
 		},
 		null,
 		true,
