@@ -5,6 +5,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	let coursePriorityEl = document.getElementById('course-priority-list');
 	let numberOfPlayersEl = document.getElementById('num-players');
 	let optionsEl = document.getElementById('tee-time-options');
+	let stopSnipingWithin36hoursEl = document.getElementById('stop-sniping-within-36h');
 
 	function updateSnipeUI6AM(isSniping) {
 		if (isSniping) {
@@ -61,6 +62,7 @@ window.addEventListener('DOMContentLoaded', () => {
 				.filter((li) => !li.classList.contains('disabled'))
 				.map((li) => li.getAttribute('value')),
 			numPlayers: parseInt(numberOfPlayersEl.value),
+			stopSnipingWithin36hours: stopSnipingWithin36hoursEl.checked,
 		};
 		await window.api.setTeeTimeOptions(teeTimeOptions);
 
@@ -81,6 +83,7 @@ window.addEventListener('DOMContentLoaded', () => {
 				.filter((li) => !li.classList.contains('disabled'))
 				.map((li) => li.getAttribute('value')),
 			numPlayers: parseInt(numberOfPlayersEl.value),
+			stopSnipingWithin36hours: stopSnipingWithin36hoursEl.checked,
 		};
 		await window.api.setTeeTimeOptions(teeTimeOptions);
 
@@ -101,14 +104,20 @@ window.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
-	window.api.onStopSnipingWhenReady(async (reservation) => {
+	window.api.onStopSnipingWhenReady(async (reservation, forceStop) => {
 		updateSnipeUIWhenAvailable(false);
+
+		if (forceStop) return;
 
 		if (reservation) {
 			await window.api.showAlert(`Successfully reserved tee time for ${reservation.teesheet_title} at ${reservation.time}.`);
 		} else {
 			await window.api.showAlert('Failed to reserve tee time.', 'error');
 		}
+	});
+
+	window.api.onShowAlert(async (message, type) => {
+		await window.api.showAlert(message, type);
 	});
 
 	window.api.sendReservationEmail(async (reservation) => {

@@ -1,4 +1,5 @@
 const { CronJob } = require('cron');
+const moment = require('moment');
 const { getSessionId, logIn, getClosestTeeTime, reserveTeeTime, getIsSniping6AM, getIsSnipingWhenAvailable, getTeeTimeOptions, setIsSniping6AM, setIsSnipingWhenAvailable } = require('./foreupService');
 
 let sessionId = null;
@@ -58,6 +59,15 @@ function startWorkers(win) {
 			if (!isSnipingWhenAvailable) return;
 
 			let teeTimeOptions = await getTeeTimeOptions();
+
+			let hourDiff = moment(teeTimeOptions.targetDate).diff(moment(), 'hours');
+			if (teeTimeOptions.stopSnipingWithin36hours && hourDiff <= 36) {
+				await setIsSnipingWhenAvailable(false);
+				win.webContents.send('stop-sniping-when-ready', null, true);
+				win.webContents.send('show-alert', 'Stopped sniping because target date is in less than 36 hours.', 'info');
+				return;
+			}
+
 			let closestTeeTime = await getClosestTeeTime(sessionId, bearerToken, teeTimeOptions);
 			if (!closestTeeTime) return;
 

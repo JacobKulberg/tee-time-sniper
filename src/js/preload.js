@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('api', {
 	fetchTeeTimes: (sessionId, bearerToken, date, courseScheduleId, minTime, maxTime, numPlayers) => ipcRenderer.invoke('fetch-tee-times', sessionId, bearerToken, date, courseScheduleId, minTime, maxTime, numPlayers),
 
 	showAlert: (message, type = 'none') => ipcRenderer.invoke('show-alert', message, type),
+	onShowAlert: (callback) => ipcRenderer.on('show-alert', (event, message, type) => callback(message, type)),
 
 	getIsSniping6AM: () => ipcRenderer.invoke('get-is-sniping-6am'),
 	getIsSnipingWhenAvailable: () => ipcRenderer.invoke('get-is-sniping-when-available'),
@@ -21,7 +22,7 @@ contextBridge.exposeInMainWorld('api', {
 	setTeeTimeOptions: (data) => ipcRenderer.invoke('set-tee-time-data', data),
 
 	onStopSniping6AM: (callback) => ipcRenderer.on('stop-sniping-6am', (event, reservation) => callback(reservation)),
-	onStopSnipingWhenReady: (callback) => ipcRenderer.on('stop-sniping-when-ready', (event, reservation) => callback(reservation)),
+	onStopSnipingWhenReady: (callback) => ipcRenderer.on('stop-sniping-when-ready', (event, reservation, forceStop = false) => callback(reservation, forceStop)),
 
 	sendReservationEmail: (callback) => ipcRenderer.on('send-reservation-email', (event, reservation) => callback(reservation)),
 });

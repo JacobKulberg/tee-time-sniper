@@ -1,6 +1,6 @@
 {
 	"name": "tee-time-sniper",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"main": "src/js/main.js",
 	"scripts": {
 		"start": "electron src/js/main.js",
