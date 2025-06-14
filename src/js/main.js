@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu, Tray } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, Tray, powerSaveBlocker } = require('electron');
 const path = require('path');
 const { getSessionId, logIn, fetchTeeTimes, getIsSniping6AM, getIsSnipingWhenAvailable, getTeeTimeOptions, setIsSniping6AM, setIsSnipingWhenAvailable, setTeeTimeOptions } = require('./foreupService');
 const { startWorkers } = require('./worker');
@@ -55,9 +55,17 @@ function createWindow() {
 	return win;
 }
 
+let powerSaveBlockerId;
 app.whenReady().then(() => {
 	let win = createWindow();
 	startWorkers(win);
+
+	powerSaveBlockerId = powerSaveBlocker.start('prevent-app-suspension');
+	win.on('before-quit', () => {
+		if (powerSaveBlockerId && powerSaveBlocker.isStarted(powerSaveBlockerId)) {
+			powerSaveBlocker.stop(powerSaveBlockerId);
+		}
+	});
 
 	ipcMain.handle('get-session-id', async () => {
 		const sessionId = await getSessionId();
