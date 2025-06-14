@@ -1,5 +1,6 @@
 const moment = require('moment');
 const fetch = require('node-fetch');
+const log = require('electron-log');
 
 let isSniping6AM = false;
 let isSnipingWhenAvailable = false;
@@ -30,6 +31,8 @@ async function setTeeTimeOptions(data) {
 }
 
 async function getSessionId() {
+	log.info('Fetching session ID from ForeUp');
+
 	let url = 'https://foreupsoftware.com/index.php/booking/a/21262/21';
 	let response = await fetch(url, {
 		method: 'GET',
@@ -40,10 +43,15 @@ async function getSessionId() {
 	});
 
 	let sessionId = response.headers.raw()['set-cookie'][0].split('; ')[0];
+
+	log.info(`Session ID fetched: ${sessionId}`);
+
 	return sessionId;
 }
 
 async function logIn(sessionId) {
+	log.info('Logging in to ForeUp');
+
 	let url = 'https://foreupsoftware.com/index.php/api/booking/users/login';
 	let response = await fetch(url, {
 		method: 'POST',
@@ -67,10 +75,15 @@ async function logIn(sessionId) {
 	}
 
 	let bearerToken = (await response.json()).jwt;
+
+	log.info(`Logged in successfully. Bearer token fetched: ${bearerToken}`);
+
 	return bearerToken;
 }
 
 async function fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId, minTime, maxTime, numPlayers) {
+	log.info(`Fetching tee times for date: ${date}, courseScheduleId: ${courseScheduleId}, minTime: ${minTime}, maxTime: ${maxTime}, numPlayers: ${numPlayers}`);
+
 	date = moment(date, 'YYYY/MM/DD').format('MM-DD-YYYY');
 
 	let url = `https://foreupsoftware.com/index.php/api/booking/times?time=all&date=${date}&holes=18&players=${numPlayers}&booking_class=87&schedule_id=${courseScheduleId}&specials_only=0&api_key=no_limits&is_aggregate=true`;
@@ -89,6 +102,8 @@ async function fetchTeeTimes(sessionId, bearerToken, date, courseScheduleId, min
 		time.time = time.time.split(' ')[1];
 		return moment(time.time, 'HH:mm').isBetween(moment(minTime, 'HH:mm'), moment(maxTime, 'HH:mm'), null, '[]');
 	});
+
+	log.info(`Fetched tee times: ${JSON.stringify(times)}`);
 
 	return times;
 }
@@ -131,6 +146,8 @@ async function getClosestTeeTime(sessionId, bearerToken, teeTimeOptions) {
 }
 
 async function reserveTeeTime(sessionId, bearerToken, closestTeeTime) {
+	log.info(`Creating pending reservation for tee time: ${JSON.stringify(closestTeeTime)}`);
+
 	let pendingReservationUrl = `https://foreupsoftware.com/api_rest/courses/${closestTeeTime.course_id}/oco/bag/pending_reservation`;
 	let pendingReservationResponse = await fetch(pendingReservationUrl, {
 		method: 'POST',
@@ -162,6 +179,8 @@ async function reserveTeeTime(sessionId, bearerToken, closestTeeTime) {
 
 	let pendingReservation = await pendingReservationResponse.json();
 	let reservationId = pendingReservation.reservation_id;
+
+	log.info(`Creating reservation for reservation ID: ${reservationId}`);
 
 	let reservationUrl = 'https://foreupsoftware.com/index.php/api/booking/users/reservations';
 	let reservation = await fetch(reservationUrl, {
@@ -273,6 +292,9 @@ async function reserveTeeTime(sessionId, bearerToken, closestTeeTime) {
 	});
 
 	let reservationData = await reservation.json();
+
+	log.info(`Reservation created successfully: ${JSON.stringify(reservationData)}`);
+
 	return reservationData;
 }
 

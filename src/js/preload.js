@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const log = require('electron-log');
 
 contextBridge.exposeInMainWorld('api', {
 	EMAIL: process.env.EMAIL,
@@ -25,4 +26,7 @@ contextBridge.exposeInMainWorld('api', {
 	onStopSnipingWhenReady: (callback) => ipcRenderer.on('stop-sniping-when-ready', (event, reservation, forceStop = false) => callback(reservation, forceStop)),
 
 	sendReservationEmail: (callback) => ipcRenderer.on('send-reservation-email', (event, reservation) => callback(reservation)),
+
+	info: (...args) => log.info(...args),
+	error: (...args) => log.error(...args),
 });

@@ -1,5 +1,6 @@
 const { CronJob } = require('cron');
 const moment = require('moment');
+const log = require('electron-log');
 const { getSessionId, logIn, getClosestTeeTime, reserveTeeTime, getIsSniping6AM, getIsSnipingWhenAvailable, getTeeTimeOptions, setIsSniping6AM, setIsSnipingWhenAvailable } = require('./foreupService');
 
 let sessionId = null;
@@ -28,6 +29,8 @@ function startWorkers(win) {
 	new CronJob(
 		'0 6 * * *',
 		async () => {
+			log.info('Running 6AM sniping job');
+
 			let isSniping6AM = await getIsSniping6AM();
 			if (!isSniping6AM) return;
 
@@ -55,6 +58,8 @@ function startWorkers(win) {
 	new CronJob(
 		'*/15 * * * * *',
 		async () => {
+			log.info('Running sniping job for when available');
+
 			let isSnipingWhenAvailable = await getIsSnipingWhenAvailable();
 			if (!isSnipingWhenAvailable) return;
 
@@ -84,6 +89,8 @@ function startWorkers(win) {
 	new CronJob(
 		'0 * * * *',
 		async () => {
+			log.info('Refreshing session ID and bearer token');
+
 			sessionId = await getSessionId();
 			bearerToken = await logIn(sessionId);
 		},

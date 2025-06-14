@@ -71,6 +71,12 @@ window.addEventListener('DOMContentLoaded', () => {
 		await window.api.setIsSniping6AM(newIsSniping6AMState);
 
 		updateSnipeUI6AM(newIsSniping6AMState);
+
+		if (newIsSniping6AMState) {
+			window.api.info(`Started sniping for 6AM with options: ${JSON.stringify(teeTimeOptions)}`);
+		} else {
+			window.api.info('Stopped sniping for 6AM');
+		}
 	});
 
 	snipeButtonWhenAvailableEl.addEventListener('click', async () => {
@@ -92,6 +98,12 @@ window.addEventListener('DOMContentLoaded', () => {
 		await window.api.setIsSnipingWhenAvailable(newIsSnipingWhenAvailableState);
 
 		updateSnipeUIWhenAvailable(newIsSnipingWhenAvailableState);
+
+		if (newIsSnipingWhenAvailableState) {
+			window.api.info(`Started sniping when available with options: ${JSON.stringify(teeTimeOptions)}`);
+		} else {
+			window.api.info('Stopped sniping when available');
+		}
 	});
 
 	window.api.onStopSniping6AM(async (reservation) => {
